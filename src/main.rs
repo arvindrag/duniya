@@ -14,7 +14,11 @@ use crate::{
     assets::PLAYER,
     base::{
         animation::SpriteAnimationPlugin,
-        character::{Character, CharacterState},
+        character::{
+            Character, CharacterPlugin,
+            CharacterState, Player,
+        },
+        input::InputControllerPlugin,
     },
 };
 use bevy::prelude::*;
@@ -30,10 +34,13 @@ fn startup(
     >,
 ) {
     // Spawn a 2D camera to see the sprite
-    commands.spawn(Character::bundle(
-        asset_server,
-        texture_atlas_layouts,
-        PLAYER,
+    commands.spawn((
+        Character::bundle(
+            asset_server,
+            texture_atlas_layouts,
+            PLAYER,
+        ),
+        Player,
     ));
     commands.spawn(Camera2d);
 }
@@ -41,6 +48,8 @@ fn main() {
     App::new()
         .add_plugins(DefaultPlugins)
         .add_plugins(SpriteAnimationPlugin)
+        .add_plugins(InputControllerPlugin)
+        .add_plugins(CharacterPlugin)
         .add_systems(Startup, startup)
         .run();
 }

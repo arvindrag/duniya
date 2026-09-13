@@ -33,7 +33,7 @@ pub const PLAYER: SpriteSheet = SpriteSheet {
         (
             CharacterState::Idle,
             CharacterDirection::Up,
-            0..8,
+            4..8,
         ),
         (
             CharacterState::Idle,
@@ -48,12 +48,12 @@ pub const PLAYER: SpriteSheet = SpriteSheet {
         (
             CharacterState::Idle,
             CharacterDirection::Right,
-            8..16,
+            9..16,
         ),
         (
             CharacterState::Run,
             CharacterDirection::Up,
-            8..16,
+            10..19,
         ),
         (
             CharacterState::Run,

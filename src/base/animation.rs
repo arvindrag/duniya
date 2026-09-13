@@ -67,21 +67,21 @@ fn animate_sprite(
         config.timer.tick(time.delta());
 
         // If the timer completed its duration, advance the frame index
+        // (skipped if the sheet has no frames for
+        // this state/direction, e.g. Walk)
         if config.timer.just_finished()
             && let Some(atlas) =
                 &mut sprite.texture_atlas
-        {
-            let range = config
-                .actions
-                .get(&(
+            && let Some(range) =
+                config.actions.get(&(
                     character.state.clone(),
                     character.direction.clone(),
                 ))
-                .unwrap();
-
+        {
             // Advance within the action's range, wrapping to its start. If the
             // index is outside the range (state/direction just changed), restart.
-            atlas.index = if range.contains(&atlas.index)
+            atlas.index = if range
+                .contains(&atlas.index)
                 && atlas.index + 1 < range.end
             {
                 atlas.index + 1
