@@ -2,6 +2,14 @@
     // Allow `rust-analyzer` and `cargo` to run simultaneously.
     // This uses extra storage space, so consider commenting it out.
     "rust-analyzer.cargo.targetDir": true,
+    // Run `cargo clippy` (instead of `cargo check`) on save to show lints inline.
+    "rust-analyzer.checkOnSave": true,
+    "rust-analyzer.check.command": "clippy",
+    // Format Rust files on save.
+    "[rust]": {
+        "editor.defaultFormatter": "rust-lang.rust-analyzer",
+        "editor.formatOnSave": true
+    },
     // Display the directory of `mod.rs` files in the tab above the text editor.
     "workbench.editor.customLabels.patterns": {
         "**/mod.rs": "${dirname}/mod.rs"
