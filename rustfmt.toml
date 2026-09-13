@@ -1,0 +1,6 @@
+# Keep lines short.
+max_width = 50
+# Break every construct (calls, structs, chains,
+# etc.) onto multiple lines instead of packing
+# them up to `max_width`.
+use_small_heuristics = "Off"
