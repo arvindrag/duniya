@@ -17,22 +17,17 @@ pub struct Animator {
 
 impl Animator {
     pub fn new(
-        actions: &[(
+        actions: Vec<(
             CharacterState,
             CharacterDirection,
             Range<usize>,
-        ); 8],
+        )>,
     ) -> Self {
         let mut actions_map = HashMap::new();
         for (state, direction, frames) in actions
         {
-            actions_map.insert(
-                (
-                    state.clone(),
-                    direction.clone(),
-                ),
-                frames.clone(),
-            );
+            actions_map
+                .insert((state, direction), frames);
         }
         Self {
             timer: Timer::from_seconds(

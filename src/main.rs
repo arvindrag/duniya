@@ -19,6 +19,7 @@ use crate::{
             CharacterState, Player,
         },
         input::InputControllerPlugin,
+        sprite::SpriteSheetPlugin,
     },
 };
 use bevy::prelude::*;
@@ -29,17 +30,10 @@ mod base;
 fn startup(
     mut commands: Commands,
     asset_server: Res<AssetServer>,
-    mut texture_atlas_layouts: ResMut<
-        Assets<TextureAtlasLayout>,
-    >,
 ) {
     // Spawn a 2D camera to see the sprite
     commands.spawn((
-        Character::bundle(
-            asset_server,
-            texture_atlas_layouts,
-            PLAYER,
-        ),
+        Character::bundle(&asset_server, &PLAYER),
         Player,
     ));
     commands.spawn(Camera2d);
@@ -47,6 +41,7 @@ fn startup(
 fn main() {
     App::new()
         .add_plugins(DefaultPlugins)
+        .add_plugins(SpriteSheetPlugin)
         .add_plugins(SpriteAnimationPlugin)
         .add_plugins(InputControllerPlugin)
         .add_plugins(CharacterPlugin)

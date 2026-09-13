@@ -1,23 +1,19 @@
 use bevy::{
-    ecs::{component::Component, system::Res},
-    image::TextureAtlasLayout,
-    sprite::Sprite,
+    ecs::component::Component,
     transform::components::Transform,
 };
 use bevy::{
     platform::collections::HashMap, prelude::*,
 };
 
-use crate::base::{
-    animation::*, input::ArrowInput, sprite::*,
-};
+use crate::base::{input::ArrowInput, sprite::*};
 
 /// Top speed, in pixels per second.
 pub const MAX_SPEED: f32 = 200.0;
 /// Speeds above this play the Run animation.
 pub const RUN_SPEED: f32 = 120.0;
 /// How fast velocity changes, in pixels/sec².
-pub const ACCELERATION: f32 = 600.0;
+pub const ACCELERATION: f32 = 300.0;
 
 #[derive(Eq, PartialEq, Hash, Clone, Debug)]
 pub enum CharacterState {
@@ -47,28 +43,21 @@ pub struct Player;
 
 impl Character {
     pub fn bundle(
-        asset_server: Res<AssetServer>,
-        texture_atlas_layouts: ResMut<
-            Assets<TextureAtlasLayout>,
-        >,
-        sheet: SpriteSheet,
-    ) -> (Character, Sprite, Transform, Animator)
+        asset_server: &AssetServer,
+        sheet: &'static SpriteSheet,
+    ) -> (Character, LoadingSheet, Transform)
     {
-        let (sprite, transform, animator) = sheet
-            .bundle(
-                asset_server,
-                texture_atlas_layouts,
-            );
+        let (loading, transform) =
+            sheet.bundle(asset_server);
         (
             Self {
                 state: CharacterState::Idle,
                 direction:
-                    CharacterDirection::Left,
+                    CharacterDirection::Down,
                 velocity: Vec2::ZERO,
             },
-            sprite,
+            loading,
             transform,
-            animator,
         )
     }
 }
