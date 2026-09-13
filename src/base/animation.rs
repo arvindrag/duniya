@@ -4,13 +4,16 @@ use bevy::{
     platform::collections::HashMap, prelude::*,
 };
 
-use crate::base::{character::*, sprite::*};
+use crate::base::{
+    character::*,
+    movement::{Direction, Movable},
+};
 
 #[derive(Component)]
 pub struct Animator {
     timer: Timer,
     actions: HashMap<
-        (CharacterState, CharacterDirection),
+        (CharacterState, Direction),
         Range<usize>,
     >,
 }
@@ -19,7 +22,7 @@ impl Animator {
     pub fn new(
         actions: Vec<(
             CharacterState,
-            CharacterDirection,
+            Direction,
             Range<usize>,
         )>,
     ) -> Self {
@@ -53,9 +56,10 @@ fn animate_sprite(
         &mut Animator,
         &mut Sprite,
         &Character,
+        &Movable,
     )>,
 ) {
-    for (mut config, mut sprite, character) in
+    for (mut config, mut sprite, character, movable) in
         &mut query
     {
         // Tick the timer based on real time elapsed
@@ -63,14 +67,14 @@ fn animate_sprite(
 
         // If the timer completed its duration, advance the frame index
         // (skipped if the sheet has no frames for
-        // this state/direction, e.g. Walk)
+        // this state/direction)
         if config.timer.just_finished()
             && let Some(atlas) =
                 &mut sprite.texture_atlas
             && let Some(range) =
                 config.actions.get(&(
                     character.state.clone(),
-                    character.direction.clone(),
+                    movable.direction.clone(),
                 ))
         {
             // Advance within the action's range, wrapping to its start. If the

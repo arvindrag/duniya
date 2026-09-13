@@ -19,6 +19,7 @@ use crate::{
             CharacterState, Player,
         },
         input::InputControllerPlugin,
+        movement::MovementPlugin,
         sprite::SpriteSheetPlugin,
     },
 };
@@ -36,6 +37,10 @@ fn startup(
         Character::bundle(&asset_server, &PLAYER),
         Player,
     ));
+    commands.spawn((Character::bundle(
+        &asset_server,
+        &PLAYER,
+    ),));
     commands.spawn(Camera2d);
 }
 fn main() {
@@ -45,6 +50,7 @@ fn main() {
         .add_plugins(SpriteAnimationPlugin)
         .add_plugins(InputControllerPlugin)
         .add_plugins(CharacterPlugin)
+        .add_plugins(MovementPlugin)
         .add_systems(Startup, startup)
         .run();
 }

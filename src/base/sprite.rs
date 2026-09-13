@@ -5,6 +5,7 @@ use bevy::{
 
 use crate::base::animation::Animator;
 use crate::base::character::*;
+use crate::base::movement::Direction;
 
 #[derive(Clone)]
 pub struct StateFrames {
@@ -29,7 +30,7 @@ pub struct SpriteSheet {
     pub cell: u32,
     pub scale: f32,
     /// Facing shown by each row of every sheet.
-    pub rows: [CharacterDirection; 4],
+    pub rows: [Direction; 4],
     pub sheets: &'static [SheetSource],
 }
 

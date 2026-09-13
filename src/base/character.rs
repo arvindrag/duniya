@@ -6,14 +6,9 @@ use bevy::{
     platform::collections::HashMap, prelude::*,
 };
 
-use crate::base::{input::ArrowInput, sprite::*};
-
-/// Top speed, in pixels per second.
-pub const MAX_SPEED: f32 = 200.0;
-/// Speeds above this play the Run animation.
-pub const RUN_SPEED: f32 = 120.0;
-/// How fast velocity changes, in pixels/sec².
-pub const ACCELERATION: f32 = 300.0;
+use crate::base::{
+    input::ArrowInput, movement::*, sprite::*,
+};
 
 #[derive(Eq, PartialEq, Hash, Clone, Debug)]
 pub enum CharacterState {
@@ -22,19 +17,9 @@ pub enum CharacterState {
     Run,
 }
 
-#[derive(Eq, PartialEq, Hash, Clone, Debug)]
-pub enum CharacterDirection {
-    Up,
-    Down,
-    Left,
-    Right,
-}
-
 #[derive(Component, Clone)]
 pub struct Character {
     pub state: CharacterState,
-    pub direction: CharacterDirection,
-    pub velocity: Vec2,
 }
 
 /// Marks the character steered by the arrow keys.
@@ -45,19 +30,28 @@ impl Character {
     pub fn bundle(
         asset_server: &AssetServer,
         sheet: &'static SpriteSheet,
-    ) -> (Character, LoadingSheet, Transform)
-    {
+    ) -> (
+        Character,
+        LoadingSheet,
+        Transform,
+        Movable,
+    ) {
         let (loading, transform) =
             sheet.bundle(asset_server);
         (
             Self {
                 state: CharacterState::Idle,
-                direction:
-                    CharacterDirection::Down,
-                velocity: Vec2::ZERO,
             },
             loading,
             transform,
+            Movable {
+                direction: Direction::Down,
+                velocity: Vec2::ZERO,
+                max_speed: 200.0,
+                run_speed: 120.0,
+                acceleration: 300.0,
+                state: MoveState::STATIONARY,
+            },
         )
     }
 }
@@ -68,8 +62,7 @@ impl Plugin for CharacterPlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(
             Update,
-            (steer_player, move_characters)
-                .chain(),
+            (steer_player).chain(),
         );
     }
 }
@@ -80,64 +73,32 @@ fn steer_player(
     time: Res<Time>,
     input: Res<ArrowInput>,
     mut query: Query<
-        &mut Character,
+        (&mut Character, &mut Movable),
         With<Player>,
     >,
 ) {
-    let target =
-        input.direction.normalize_or_zero()
-            * MAX_SPEED;
-    let step = ACCELERATION * time.delta_secs();
-    for mut character in &mut query {
-        character.velocity = character
+    for (mut character, mut movable) in &mut query
+    {
+        let target = input
+            .direction
+            .normalize_or_zero()
+            * movable.max_speed;
+        let step =
+            movable.acceleration * time.delta_secs();
+        movable.velocity = movable
             .velocity
             .move_towards(target, step);
-    }
-}
 
-/// Moves characters by their velocity and derives
-/// state and facing from it.
-fn move_characters(
-    time: Res<Time>,
-    mut query: Query<(
-        &mut Character,
-        &mut Transform,
-    )>,
-) {
-    for (mut character, mut transform) in
-        &mut query
-    {
-        let velocity = character.velocity;
-        transform.translation += velocity
-            .extend(0.0)
-            * time.delta_secs();
-
-        let speed = velocity.length();
-        character.state = if speed == 0.0 {
-            CharacterState::Idle
-        } else if speed > RUN_SPEED {
-            CharacterState::Run
-        } else {
-            CharacterState::Walk
+        character.state = match movable.state {
+            MoveState::STATIONARY => {
+                CharacterState::Idle
+            }
+            MoveState::WALKING => {
+                CharacterState::Walk
+            }
+            MoveState::RUNNING => {
+                CharacterState::Run
+            }
         };
-
-        // Face the dominant axis; keep the last
-        // facing when stopped.
-        if speed > 0.0 {
-            character.direction =
-                if velocity.x.abs()
-                    > velocity.y.abs()
-                {
-                    if velocity.x > 0.0 {
-                        CharacterDirection::Right
-                    } else {
-                        CharacterDirection::Left
-                    }
-                } else if velocity.y > 0.0 {
-                    CharacterDirection::Up
-                } else {
-                    CharacterDirection::Down
-                };
-        }
     }
 }
